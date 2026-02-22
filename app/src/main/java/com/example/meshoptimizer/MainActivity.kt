@@ -1,5 +1,6 @@
 package com.example.meshoptimizer
 
+import android.app.Dialog
 import android.content.*
 import android.content.res.ColorStateList
 import android.graphics.*
@@ -281,9 +282,13 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_welcome, null, false)
-        val message = dialogView.findViewById<TextView>(R.id.dialog_message)
-        val checkBox = dialogView.findViewById<AppCompatCheckBox>(R.id.dialog_checkbox)
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_welcome)
+
+        val message = dialog.findViewById<TextView>(R.id.dialog_message)
+        val checkBox = dialog.findViewById<AppCompatCheckBox>(R.id.dialog_checkbox)
+        val closeButton = dialog.findViewById<Button>(R.id.dialog_close_button)
 
         val htmlText = """
             <b>Привет! Это GlyphZip $version.</b><br><br>
@@ -302,19 +307,20 @@ class MainActivity : AppCompatActivity() {
             message.text = Html.fromHtml(htmlText)
         }
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("Закрыть") { d, _ ->
-                if (checkBox.isChecked) {
-                    prefs.edit().putBoolean(doNotShowAgainPref, true).apply()
-                }
-                d.dismiss()
+        closeButton.setOnClickListener {
+            if (checkBox.isChecked) {
+                prefs.edit().putBoolean(doNotShowAgainPref, true).apply()
             }
-            .create()
+            dialog.dismiss()
+        }
 
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
+
+        val displayMetrics = resources.displayMetrics
+        val height = (displayMetrics.heightPixels * 0.85).toInt()
+        dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, height)
+
         dialog.show()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#67EA94"))
     }
 
     override fun onResume() { super.onResume(); updateUI() }

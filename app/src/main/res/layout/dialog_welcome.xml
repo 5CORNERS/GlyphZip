@@ -1,26 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingLeft="24dp"
-    android:paddingTop="20dp"
-    android:paddingRight="24dp"
-    android:paddingBottom="12dp">
+    android:layout_height="match_parent"
+    android:background="#2A2A2A"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/dialog_message"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="24dp"
+        android:paddingTop="20dp"
+        android:paddingRight="24dp">
+
+        <TextView
+            android:id="@+id/dialog_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </ScrollView>
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingTop="4dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="4dp">
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/dialog_checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Больше не показывать"
-        android:textColor="@android:color/darker_gray" />
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/dialog_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Больше не показывать"
+            android:textColor="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/dialog_close_button"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Закрыть"
+            android:textColor="#67EA94" />
+    </LinearLayout>
 
 </LinearLayout>
