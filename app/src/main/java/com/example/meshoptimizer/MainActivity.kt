@@ -32,11 +32,11 @@ class MainActivity : AppCompatActivity() {
         "О" to "O", "Р" to "P", "С" to "C", "Т" to "T", "Х" to "X",
         "а" to "a", "е" to "e", "ё" to "e", "о" to "o", "р" to "p", "с" to "c", "у" to "y", "х" to "x"
     )
-    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u")
+    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u", "д" to "g")
 
-    // Строгий порядок: б, З, У, к, г, ч
+    // Strict order: б, З, У, к, г, ч
     private val group3 = linkedMapOf(
-        "б" to "6", "З" to "3", "У" to "Y", "к" to "k", "г" to "r", "ч" to "4"
+        "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b"
     )
 
     private val allReplacements = group1 + group2 + group3
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             setBackgroundColor(Color.parseColor("#121212"))
         }
 
-        // --- Шапка ---
+        // --- Header ---
         val header = RelativeLayout(this).apply{
 
             val leftSection = LinearLayout(this@MainActivity).apply {
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(header)
 
-        // --- Кнопки Вставить/Очистить ---
+        // --- Paste/Clear buttons ---
         val btnRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(0, 40, 0, 20)
@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         })
         root.addView(btnRow)
 
-        // --- Поля ввода/вывода ---
+        // --- Input/Output fields ---
         val inputBgDefault = GradientDrawable().apply {
             setColor(Color.parseColor("#1A1A1A"))
             setStroke(2, Color.parseColor("#333333"))
@@ -176,11 +176,11 @@ class MainActivity : AppCompatActivity() {
         }
         val inputBgFocused = GradientDrawable().apply {
             setColor(Color.parseColor("#1A1A1A"))
-            setStroke(4, Color.parseColor("#80D8FF")) // Яркая и толстая обводка
+            setStroke(4, Color.parseColor("#80D8FF")) // Bright and thick stroke
             cornerRadius = 25f
         }
         val outputBg = GradientDrawable().apply {
-            setColor(Color.parseColor("#161616")) // Слегка другой фон, без обводки
+            setColor(Color.parseColor("#161616")) // Slightly different background, no stroke
             cornerRadius = 25f
         }
 
@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
         adviceContainer = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(adviceContainer)
 
-        // --- Копировать ---
+        // --- Copy ---
         val copyBtnContainer = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#67EA94"))
@@ -315,12 +315,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
+        dialog.show()
 
+        // We need to set the layout params after showing the dialog
         val displayMetrics = resources.displayMetrics
         val height = (displayMetrics.heightPixels * 0.85).toInt()
         dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, height)
-
-        dialog.show()
     }
 
     override fun onResume() { super.onResume(); updateUI() }
@@ -362,7 +362,7 @@ class MainActivity : AppCompatActivity() {
                 val gain = g2Missing.sumOf { char -> input.count { it.toString() == char } }
                 if (gain > 0) createAdviceBtn("Включить замену «à la курсив»", gain, group2.keys)
             } else {
-                // Порядок б, З, У, к, г, ч благодаря LinkedMap
+                // Order: б, З, У, к, г, ч thanks to LinkedMap
                 for (char in group3.keys) {
                     if (!enabled.contains(char)) {
                         val gain = input.count { it.toString() == char }

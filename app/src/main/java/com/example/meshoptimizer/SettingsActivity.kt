@@ -13,12 +13,13 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import android.content.res.ColorStateList
 
 class SettingsActivity : AppCompatActivity() {
 
     private val group1 = mapOf("А" to "A", "В" to "B", "Е" to "E", "К" to "K", "М" to "M", "Н" to "H", "О" to "O", "Р" to "P", "С" to "C", "Т" to "T", "Х" to "X", "а" to "a", "е" to "e", "ё" to "e", "о" to "o", "р" to "p", "с" to "c", "у" to "y", "х" to "x")
-    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u")
-    private val group3 = linkedMapOf("б" to "6", "З" to "3", "У" to "Y", "к" to "k", "г" to "r", "ч" to "4")
+    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u", "д" to "g")
+    private val group3 = linkedMapOf( "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b")
 
     private lateinit var editLimit: EditText
     private lateinit var prefs: SharedPreferences
@@ -34,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
             fitsSystemWindows = true
         }
 
-        // Заголовок
+        // Header
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(0, 0, 0, 50)
@@ -53,7 +54,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         root.addView(header)
 
-        // Поле лимита
+        // Limit field
         val limitBox = LinearLayout(this).apply {
             setPadding(40, 30, 40, 30)
             background = GradientDrawable().apply {
@@ -73,7 +74,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         root.addView(limitBox)
 
-        // Колонки
+        // Columns
         val cols = LinearLayout(this).apply {
             setPadding(0, 50, 0, 0)
             weightSum = 2f
@@ -89,7 +90,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         addSection(left, "Омоглифы", group1, true)
-        addSection(right, "À la курсив", group2)
+        addSection(left, "À la курсив", group2)
         right.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 70) })
         addSection(right, "Агрессивно", group3)
 
@@ -97,9 +98,9 @@ class SettingsActivity : AppCompatActivity() {
         cols.addView(right)
         root.addView(cols)
 
-        // Подвал
+        // Footer
         val footerText = TextView(this).apply {
-            val textStr = "GlyphZip v1.0 © Le-francais.ru. Проверить обновление"
+            val textStr = "GlyphZip v1.1 © Le-francais.ru. Проверить обновление"
             val spannable = SpannableString(textStr)
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
@@ -142,7 +143,7 @@ class SettingsActivity : AppCompatActivity() {
         val current = prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys
         val childCheckboxes = mutableListOf<androidx.appcompat.widget.AppCompatCheckBox>()
 
-        // Заголовок группы
+        // Group header
         val head = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(0, 10, 0, 15)
@@ -185,7 +186,7 @@ class SettingsActivity : AppCompatActivity() {
             setPadding(20, 0, 0, 0)
         }
 
-        // Сетка букв с отступом (нужна для обработчика нажатий)
+        // Character grid with indentation
         val grid = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(50, 0, 0, 0)
@@ -194,8 +195,11 @@ class SettingsActivity : AppCompatActivity() {
 
         if (expandable) {
             val chevron = ImageView(this).apply {
-                setImageResource(R.drawable.ic_back)
-                rotation = if (grid.isVisible) 90f else 270f // Initial rotation
+                setImageResource(R.drawable.outline_arrow_back)
+                imageTintList = ColorStateList.valueOf(Color.parseColor("#67EA94"))
+                rotation = 0f // Initially points left
+                scaleX = 0.8f
+                scaleY = 0.8f
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -209,7 +213,7 @@ class SettingsActivity : AppCompatActivity() {
                 addView(chevron)
                 setOnClickListener {
                     grid.isVisible = !grid.isVisible
-                    chevron.rotation = if (grid.isVisible) 90f else 270f
+                    chevron.rotation = if (grid.isVisible) 270f else 0f // 270 degrees for down
                 }
             }
             head.addView(expandableArea)
