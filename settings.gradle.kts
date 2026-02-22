@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MeshOptimizer"
+rootProject.name = "GlyphZip"
 include(":app")

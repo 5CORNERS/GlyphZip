@@ -13,6 +13,7 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatCheckBox
 import java.nio.charset.Charset
 import android.content.ClipboardManager
 
@@ -280,39 +281,26 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val dialogView = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(70, 50, 70, 30)
-        }
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_welcome, null, false)
+        val message = dialogView.findViewById<TextView>(R.id.dialog_message)
+        val checkBox = dialogView.findViewById<AppCompatCheckBox>(R.id.dialog_checkbox)
 
-        val message = TextView(this).apply {
-            val htmlText = """
-                <b>Привет! Это GlyphZip $version.</b><br><br>
-                Буквы кириллицы в Unicode занимают два байта, а латиницы — всего один. В сетях с жестким лимитом (Meshtastic, MeshCore, SMS) это вдвое сокращает длину вашего сообщения.<br><br>
-                GlyphZip помогает сократить этот разрыв, и вот как:<br><br>
-                <b>Омоглифы.</b> Мы заменяем русские буквы на идентичные латинские (например, «о», «а», «с»). Внешний вид букв не меняется, а размер текста в байтах сокращается.<br><br>
-                <b>Визуальные замены.</b> Для максимального сжатия приложение может использовать похожие символы или знаки из других наборов. Если текст не укладывается в лимиты, приложение предложит включить более агрессивную замену букв.<br><br>
-                Экономьте место, передавайте больше! :)<br><br>
-                Команда <b>Le-francais.ru</b>
-            """.trimIndent()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                text = Html.fromHtml(htmlText, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                @Suppress("DEPRECATION")
-                text = Html.fromHtml(htmlText)
-            }
-            textSize = 16f
-            setTextColor(Color.WHITE)
-        }
+        val htmlText = """
+            <b>Привет! Это GlyphZip $version.</b><br><br>
+            Буквы кириллицы в Unicode занимают два байта, а латиницы — всего один. В сетях с жестким лимитом (Meshtastic, MeshCore, SMS) это вдвое сокращает длину вашего сообщения.<br><br>
+            GlyphZip помогает сократить этот разрыв, и вот как:<br><br>
+            <b>Омоглифы.</b> Мы заменяем русские буквы на идентичные латинские (например, «о», «а», «с»). Внешний вид букв не меняется, а размер текста в байтах сокращается.<br><br>
+            <b>Визуальные замены.</b> Для максимального сжатия приложение может использовать похожие символы или знаки из других наборов. Если текст не укладывается в лимиты, приложение предложит включить более агрессивную замену букв.<br><br>
+            Экономьте место, передавайте больше! :)<br><br>
+            Команда <b>Le-francais.ru</b>
+        """.trimIndent()
 
-        val checkBox = CheckBox(this).apply {
-            text = "Больше не показывать"
-            setTextColor(Color.LTGRAY)
-            buttonTintList = ColorStateList.valueOf(Color.parseColor("#67EA94"))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            message.text = Html.fromHtml(htmlText, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            @Suppress("DEPRECATION")
+            message.text = Html.fromHtml(htmlText)
         }
-
-        dialogView.addView(message)
-        dialogView.addView(checkBox, LinearLayout.LayoutParams(-2, -2).apply{ topMargin = 40 })
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -334,7 +322,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI() {
         val input = inputArea.text.toString()
         val limit = prefs.getInt("byte_limit", 200)
-        val enabled = prefs.getStringSet("enabled_chars", group1.keys) ?: emptySet()
+        val enabled = prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys
 
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()
@@ -395,7 +383,7 @@ class MainActivity : AppCompatActivity() {
             }
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10; bottomMargin = 10 }
             setOnClickListener {
-                val current = (prefs.getStringSet("enabled_chars", group1.keys) ?: emptySet()).toMutableSet()
+                val current = (prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys).toMutableSet()
                 current.addAll(chars)
                 prefs.edit().putStringSet("enabled_chars", current).apply()
                 updateUI()
