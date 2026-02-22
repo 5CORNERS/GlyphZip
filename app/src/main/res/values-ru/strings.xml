@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">GlyphZip</string>
+    <string name="menu_optimize">Оптимизировать размер текста</string>
+    <string name="total_saved">Сэкономлено: %1$d байт</string>
+    <string name="reset_btn">Сброс</string>
+    <string name="clear_stats">Очистка</string>
+    <string name="insert_clipboard">Вставить из буфера</string>
+    <string name="copy_result">Копировать результат</string>
+    <string name="input_hint">Введите или вставьте текст...</string>
+    <string name="original_stats">Оригинал: %1$d байт</string>
+    <string name="opt_stats">Оптимизировано: %1$d / %2$d байт</string>
+    <string name="limit_label">Лимит байтов:</string>
+    <string name="save_limit">Сохранить лимит</string>
+    <string name="advice_prefix">Совет: включите замену \'%1$s\', это сэкономит %2$d байт</string>
+</resources>

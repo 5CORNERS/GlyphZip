@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">GlyphZip</string>
+    <string name="menu_optimize">Optimize for Mesh</string>
+    <string name="total_saved">Total saved: %1$d bytes</string>
+    <string name="reset_btn">Reset</string>
+    <string name="clear_stats">Clear Stats</string>
+    <string name="insert_clipboard">Insert from Clipboard</string>
+    <string name="copy_result">Copy Result</string>
+    <string name="input_hint">Type or paste text here...</string>
+    <string name="original_stats">Original: %1$d bytes</string>
+    <string name="opt_stats">Optimized: %1$d / %2$d bytes</string>
+    <string name="limit_label">Byte Limit:</string>
+    <string name="save_limit">Save Limit</string>
+    <string name="advice_prefix">Advice: Enable \'%1$s\' to save %2$d bytes</string>
+</resources>

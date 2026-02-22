@@ -1,0 +1,24 @@
+
+# IDE files
+.idea/
+*.iml
+local.properties
+
+# Gradle files
+.gradle/
+build/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google services
+google-services.json
+
+# Captures
+/captures/
+
+# Misc
+.cxx/
+*.apk
+*.aab
