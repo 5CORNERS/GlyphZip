@@ -12,7 +12,6 @@ import android.text.style.UnderlineSpan
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -88,7 +87,7 @@ class SettingsActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(0, -2, 0.9f)
         }
 
-        addSection(left, "Омоглифы", group1, true)
+        addSection(left, "Омоглифы", group1)
         addSection(right, "À la курсив", group2)
         right.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 70) })
         addSection(right, "Агрессивно", group3)
@@ -126,9 +125,9 @@ class SettingsActivity : AppCompatActivity() {
         root.addView(footer)
 
 
-        setContentView(ScrollView(this).apply {
+        setContentView(ScrollView(this).apply { 
             setBackgroundColor(Color.parseColor("#121212"))
-            addView(root)
+            addView(root) 
         })
     }
 
@@ -138,123 +137,56 @@ class SettingsActivity : AppCompatActivity() {
         prefs.edit().putInt("byte_limit", limit).apply()
     }
 
-    private fun addSection(container: LinearLayout, title: String, map: Map<String, String>, expandable: Boolean = false) {
+    private fun addSection(container: LinearLayout, title: String, map: Map<String, String>) {
         val current = prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys
-        val childCheckboxes = mutableListOf<CheckBox>()
 
         // Заголовок группы
         val head = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
             setPadding(0, 10, 0, 15)
-            gravity = Gravity.CENTER_VERTICAL
         }
-
+        
         val headCheckBox = androidx.appcompat.widget.AppCompatCheckBox(this@SettingsActivity).apply {
             buttonTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#67EA94"))
-            updateCheckboxState(this, map.keys, current)
+            isChecked = map.keys.all { current.contains(it) }
         }
 
         headCheckBox.setOnClickListener {
+            val isCh = (it as CheckBox).isChecked
             val set = (prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys).toMutableSet()
-            val allKeys = map.keys
-            val enabledInGroupCount = set.intersect(allKeys).size
-
-            if (enabledInGroupCount == 0) { // If all are off, turn all on.
-                set.addAll(allKeys)
-            } else { // If all are on or indeterminate, turn all off.
-                set.removeAll(allKeys)
-            }
-
+            if (isCh) set.addAll(map.keys) else set.removeAll(map.keys)
             prefs.edit().putStringSet("enabled_chars", set).apply()
-            updateCheckboxState(headCheckBox, allKeys, set)
-            childCheckboxes.forEach { checkbox ->
-                val key = checkbox.tag as? String
-                if (key != null) {
-                    checkbox.isChecked = set.contains(key)
-                }
-            }
+            recreate()
         }
-
+        
         head.addView(headCheckBox)
-
-        val titleTextView = TextView(this@SettingsActivity).apply {
+        head.addView(TextView(this@SettingsActivity).apply {
             text = title
             setTextColor(Color.parseColor("#67EA94"))
             typeface = Typeface.DEFAULT_BOLD
             textSize = 17f
-            setPadding(20, 0, 0, 0)
-        }
+        })
+        container.addView(head)
 
-        // Сетка букв с отступом (нужна для обработчика нажатий)
+        // Сетка букв с отступом
         val grid = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(50, 0, 0, 0)
-            isVisible = !expandable
         }
-
-        if (expandable) {
-            val chevron = ImageView(this).apply {
-                setImageResource(R.drawable.ic_back)
-                rotation = if (grid.isVisible) 90f else 270f // Initial rotation
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { marginStart = 20 }
-            }
-
-            val expandableArea = LinearLayout(this@SettingsActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                addView(titleTextView)
-                addView(chevron)
-                setOnClickListener {
-                    grid.isVisible = !grid.isVisible
-                    chevron.rotation = if (grid.isVisible) 90f else 270f
-                }
-            }
-            head.addView(expandableArea)
-        } else {
-            head.addView(titleTextView)
-        }
-
-        container.addView(head)
-
         for (entry in map) {
-            val checkbox = androidx.appcompat.widget.AppCompatCheckBox(this).apply {
+            grid.addView(androidx.appcompat.widget.AppCompatCheckBox(this).apply {
                 text = "${entry.key} → ${entry.value}"
                 setTextColor(Color.WHITE)
                 isChecked = current.contains(entry.key)
                 buttonTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#67EA94"))
                 textSize = 15f
-                tag = entry.key
                 setOnCheckedChangeListener { _, isChecked ->
                     val set = (prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys).toMutableSet()
                     if (isChecked) set.add(entry.key) else set.remove(entry.key)
                     prefs.edit().putStringSet("enabled_chars", set).apply()
-                    updateCheckboxState(headCheckBox, map.keys, set)
+                    headCheckBox.isChecked = map.keys.all{ set.contains(it) }
                 }
-            }
-            childCheckboxes.add(checkbox)
-            grid.addView(checkbox)
+            })
         }
         container.addView(grid)
-    }
-
-    private fun updateCheckboxState(checkbox: androidx.appcompat.widget.AppCompatCheckBox, allKeys: Set<String>, enabledKeys: Set<String>) {
-        val enabledInGroupCount = enabledKeys.intersect(allKeys).size
-        when {
-            enabledInGroupCount == 0 -> { // All disabled
-                checkbox.isChecked = false
-                checkbox.alpha = 1.0f
-            }
-            enabledInGroupCount == allKeys.size -> { // All enabled
-                checkbox.isChecked = true
-                checkbox.alpha = 1.0f
-            }
-            else -> { // Indeterminate
-                checkbox.isChecked = true
-                checkbox.alpha = 0.5f
-            }
-        }
     }
 }

@@ -334,7 +334,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI() {
         val input = inputArea.text.toString()
         val limit = prefs.getInt("byte_limit", 200)
-        val enabled = prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys
+        val enabled = prefs.getStringSet("enabled_chars", group1.keys) ?: emptySet()
 
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()
@@ -395,7 +395,7 @@ class MainActivity : AppCompatActivity() {
             }
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10; bottomMargin = 10 }
             setOnClickListener {
-                val current = (prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys).toMutableSet()
+                val current = (prefs.getStringSet("enabled_chars", group1.keys) ?: emptySet()).toMutableSet()
                 current.addAll(chars)
                 prefs.edit().putStringSet("enabled_chars", current).apply()
                 updateUI()
