@@ -17,10 +17,6 @@ import android.content.res.ColorStateList
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val group1 = mapOf("А" to "A", "В" to "B", "Е" to "E", "К" to "K", "М" to "M", "Н" to "H", "О" to "O", "Р" to "P", "С" to "C", "Т" to "T", "Х" to "X", "а" to "a", "е" to "e", "ё" to "e", "о" to "o", "р" to "p", "с" to "c", "у" to "y", "х" to "x")
-    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u", "д" to "g")
-    private val group3 = linkedMapOf( "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b")
-
     private lateinit var editLimit: EditText
     private lateinit var prefs: SharedPreferences
     private val checkboxRegistry = mutableMapOf<String, CheckBox>()
@@ -47,7 +43,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             addView(back)
             addView(TextView(this@SettingsActivity).apply {
-                text = "Настройки"
+                text = getString(R.string.settings_title)
                 textSize = 24f
                 setTextColor(Color.WHITE)
                 setPadding(30, 0, 0, 0)
@@ -62,7 +58,7 @@ class SettingsActivity : AppCompatActivity() {
                 setColor(Color.parseColor("#1E1E1E"))
                 cornerRadius = 20f
             }
-            addView(TextView(this@SettingsActivity).apply { text = "Лимит: "; setTextColor(Color.WHITE); textSize = 16f })
+            addView(TextView(this@SettingsActivity).apply { text = getString(R.string.limit_label_settings); setTextColor(Color.WHITE); textSize = 16f })
             editLimit = EditText(this@SettingsActivity).apply {
                 inputType = android.text.InputType.TYPE_CLASS_NUMBER
                 setText(prefs.getInt("byte_limit", 200).toString())
@@ -71,7 +67,7 @@ class SettingsActivity : AppCompatActivity() {
                 textSize = 16f
             }
             addView(editLimit)
-            addView(TextView(this@SettingsActivity).apply { text = " байтов (символов ASCII)"; setTextColor(Color.GRAY) })
+            addView(TextView(this@SettingsActivity).apply { text = getString(R.string.bytes_label_settings); setTextColor(Color.GRAY) })
         }
         root.addView(limitBox)
 
@@ -90,10 +86,10 @@ class SettingsActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(0, -2, 0.9f)
         }
 
-        addSection(left, "Омоглифы", "enabled_group1", group1, true)
-        addSection(left, "À la курсив", "enabled_group2", group2)
+        addSection(left, getString(R.string.homoglyphs_section_title), "enabled_group1", Replacements.group1, true)
+        addSection(left, getString(R.string.cursive_section_title), "enabled_group2", Replacements.group2)
         right.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 70) })
-        addSection(right, "Агрессивно", "enabled_group3", group3)
+        addSection(right, getString(R.string.aggressive_section_title), "enabled_group3", Replacements.group3)
 
         cols.addView(left)
         cols.addView(right)
@@ -101,16 +97,19 @@ class SettingsActivity : AppCompatActivity() {
 
         // Footer
         val footerText = TextView(this).apply {
-            val textStr = "GlyphZip v1.1 © Le-francais.ru. Проверить обновление"
-            val spannable = SpannableString(textStr)
+            val fullText = getString(R.string.footer_text)
+            val linkText = getString(R.string.check_for_update_link)
+            val spannable = SpannableString(fullText)
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://le-francais.ru/apps/GlyphZip")))
                 }
             }
-            val startIndex = textStr.indexOf("Проверить обновление")
-            spannable.setSpan(clickableSpan, startIndex, textStr.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannable.setSpan(UnderlineSpan(), startIndex, textStr.length, 0)
+            val startIndex = fullText.indexOf(linkText)
+            if (startIndex != -1) {
+                spannable.setSpan(clickableSpan, startIndex, startIndex + linkText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(UnderlineSpan(), startIndex, startIndex + linkText.length, 0)
+            }
 
             text = spannable
             movementMethod = android.text.method.LinkMovementMethod.getInstance()
@@ -226,7 +225,7 @@ class SettingsActivity : AppCompatActivity() {
 
         for (entry in map) {
             val checkbox = androidx.appcompat.widget.AppCompatCheckBox(this@SettingsActivity).apply {
-                text = "${entry.key} → ${entry.value}"
+                text = getString(R.string.replacement_format, entry.key, entry.value)
                 setTextColor(Color.WHITE)
                 isChecked = current.contains(entry.key)
                 buttonTintList = ColorStateList.valueOf(Color.parseColor("#67EA94"))
@@ -244,7 +243,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
 
                     editor.putStringSet(prefKey, currentSet).apply()
-                    updateCheckboxState(headCheckBox, map.keys, currentSet)
+                    updateCheckboxState(checkboxRegistry[prefKey]!!, map.keys, currentSet)
                     
                     if(isChecked) {
                         handleExclusion(prefKey, entry.key, editor)
@@ -261,16 +260,16 @@ class SettingsActivity : AppCompatActivity() {
         if (changedChar != "т") return
 
         val (otherGroupKey, otherGroupMap) = if (changedGroupKey == "enabled_group2") {
-            Pair("enabled_group3", group3)
+            Pair("enabled_group3", Replacements.group3)
         } else {
-            Pair("enabled_group2", group2)
+            Pair("enabled_group2", Replacements.group2)
         }
 
         val otherGroupSet = (prefs.getStringSet(otherGroupKey, emptySet()) ?: emptySet()).toMutableSet()
         if (otherGroupSet.remove("т")) {
             editor.putStringSet(otherGroupKey, otherGroupSet).apply()
             checkboxRegistry["$otherGroupKey-т"]?.isChecked = false
-            (checkboxRegistry[otherGroupKey] as? CheckBox)?.let{
+            (checkboxRegistry[otherGroupKey])?.let{
                  updateCheckboxState(it, otherGroupMap.keys, otherGroupSet)
             }
         }
@@ -278,9 +277,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateChildCheckboxes(prefKey: String, newSet: Set<String>) {
         val map = when(prefKey) {
-            "enabled_group1" -> group1
-            "enabled_group2" -> group2
-            else -> group3
+            "enabled_group1" -> Replacements.group1
+            "enabled_group2" -> Replacements.group2
+            else -> Replacements.group3
         }
         for (key in map.keys) {
             checkboxRegistry["$prefKey-$key"]?.isChecked = newSet.contains(key)

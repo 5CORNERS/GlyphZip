@@ -27,14 +27,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outputCounter: TextView
     private lateinit var adviceContainer: LinearLayout
 
-    private val group1 = mapOf(
-        "А" to "A", "В" to "B", "Е" to "E", "К" to "K", "М" to "M", "Н" to "H",
-        "О" to "O", "Р" to "P", "С" to "C", "Т" to "T", "Х" to "X",
-        "а" to "a", "е" to "e", "ё" to "e", "о" to "o", "р" to "p", "с" to "c", "у" to "y", "х" to "x"
-    )
-    private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u", "д" to "g")
-    private val group3 = linkedMapOf( "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -81,7 +73,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             linkContainer.addView(TextView(this@MainActivity).apply {
-                text = "От создателей "
+                text = getString(R.string.from_creators_of)
                 setTextColor(Color.WHITE)
                 textSize = 13f
             })
@@ -151,12 +143,12 @@ class MainActivity : AppCompatActivity() {
             return container
         }
 
-        btnRow.addView(createModernBtn("Вставить", R.drawable.ic_content_paste_24, 1.3f, "#128293", "#444444") {
+        btnRow.addView(createModernBtn(getString(R.string.paste_button), R.drawable.ic_content_paste_24, 1.3f, "#128293", "#444444") {
             val cb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             inputArea.setText(cb.primaryClip?.getItemAt(0)?.text ?: "")
             updateUI()
         })
-        btnRow.addView(createModernBtn("Очистить", R.drawable.ic_clear_all_24, 0.7f, "#3A3A3A", "#555555") {
+        btnRow.addView(createModernBtn(getString(R.string.clear_button), R.drawable.ic_clear_all_24, 0.7f, "#3A3A3A", "#555555") {
             inputArea.setText("")
             updateUI()
         })
@@ -180,7 +172,7 @@ class MainActivity : AppCompatActivity() {
 
 
         inputArea = EditText(this).apply {
-            hint = "Введите текст..."
+            hint = getString(R.string.input_area_hint)
             setHintTextColor(Color.DKGRAY)
             setTextColor(Color.WHITE)
             background = inputBgDefault
@@ -230,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             setOnClickListener {
                 val cb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 cb.setPrimaryClip(ClipData.newPlainText("zip", outputArea.text))
-                Toast.makeText(this@MainActivity, "Скопировано", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, getString(R.string.copied_toast), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -245,7 +237,7 @@ class MainActivity : AppCompatActivity() {
             imageTintList = ColorStateList.valueOf(Color.BLACK)
         })
         copyBtnContent.addView(TextView(this).apply {
-            text = "Копировать результат"
+            text = getString(R.string.copy_button)
             isAllCaps = false
             textSize = 18f
             setTextColor(Color.BLACK)
@@ -322,9 +314,11 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI() {
         val input = inputArea.text.toString()
         val limit = prefs.getInt("byte_limit", 200)
-        val g1 = prefs.getStringSet("enabled_group1", group1.keys) ?: group1.keys
+        val g1 = prefs.getStringSet("enabled_group1", Replacements.group1.keys) ?: Replacements.group1.keys
         val g2 = prefs.getStringSet("enabled_group2", emptySet()) ?: emptySet()
         val g3 = prefs.getStringSet("enabled_group3", emptySet()) ?: emptySet()
+
+        val allReplacements = Replacements.group1 + Replacements.group2 + Replacements.group3
 
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()
@@ -333,9 +327,9 @@ class MainActivity : AppCompatActivity() {
         for (char in input) {
             val s = char.toString()
             val repl = when {
-                g2.contains(s) -> group2[s]
-                g3.contains(s) -> group3[s]
-                g1.contains(s) -> group1[s]
+                g2.contains(s) -> Replacements.group2[s]
+                g3.contains(s) -> Replacements.group3[s]
+                g1.contains(s) -> Replacements.group1[s]
                 else -> null
             }
             val target = repl ?: s
@@ -359,17 +353,17 @@ class MainActivity : AppCompatActivity() {
         adviceContainer.removeAllViews()
         if (outBytes > limit) {
             val enabledChars = g1 + g2 + g3
-            val g2Missing = group2.keys.filter { !enabledChars.contains(it) }
+            val g2Missing = Replacements.group2.keys.filter { !enabledChars.contains(it) }
             if (g2Missing.isNotEmpty()) {
                 val gain = g2Missing.sumOf { char -> input.count { it.toString() == char } }
-                if (gain > 0) createAdviceBtn("Включить замену «à la курсив»", gain, "enabled_group2", g2Missing.toSet())
+                if (gain > 0) createAdviceBtn(getString(R.string.enable_cursive_advice), gain, "enabled_group2", g2Missing.toSet())
             } else {
                 // Order: б, З, У, к, г, ч, т, ш, Ш, ь thanks to LinkedMap
-                for (char in group3.keys) {
+                for (char in Replacements.group3.keys) {
                     if (!enabledChars.contains(char)) {
                         val gain = input.count { it.toString() == char }
                         if (gain > 0) {
-                            createAdviceBtn("Заменить '${char.lowercase()}' → ${group3[char]}", gain, "enabled_group3", setOf(char))
+                            createAdviceBtn(getString(R.string.replace_advice, char.lowercase(), Replacements.group3[char]), gain, "enabled_group3", setOf(char))
                             break
                         }
                     }
@@ -419,14 +413,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun getPluralBytes(number: Int): String {
         val lastTwoDigits = number % 100
-        if (lastTwoDigits in 11..19) {
-            return "байтов"
-        }
-        val lastDigit = number % 10
-        return when (lastDigit) {
-            1 -> "байт"
-            in 2..4 -> "байта"
-            else -> "байтов"
+        return when {
+            lastTwoDigits in 11..19 -> getString(R.string.bytes_plural)
+            else -> {
+                when (number % 10) {
+                    1 -> getString(R.string.bytes_singular)
+                    in 2..4 -> getString(R.string.bytes_paucal)
+                    else -> getString(R.string.bytes_plural)
+                }
+            }
         }
     }
 }

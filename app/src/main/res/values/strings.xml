@@ -12,4 +12,28 @@
     <string name="limit_label">Byte Limit:</string>
     <string name="save_limit">Save Limit</string>
     <string name="advice_prefix">Advice: Enable \'%1$s\' to save %2$d bytes</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="limit_label_settings">Лимит:</string>
+    <string name="bytes_label_settings">байтов (символов ASCII)</string>
+    <string name="homoglyphs_section_title">Омоглифы</string>
+    <string name="cursive_section_title">À la курсив</string>
+    <string name="aggressive_section_title">Агрессивно</string>
+    <string name="footer_text">GlyphZip v1.1 © Le-francais.ru. Проверить обновление</string>
+    <string name="check_for_update_link">Проверить обновление</string>
+    <string name="replacement_format">%1$s → %2$s</string>
+
+    <!-- Main Screen -->
+    <string name="from_creators_of">От создателей</string>
+    <string name="paste_button">Вставить</string>
+    <string name="clear_button">Очистить</string>
+    <string name="input_area_hint">Вставьте или введите текст...</string>
+    <string name="copy_button">Копировать результат</string>
+    <string name="copied_toast">Скопировано</string>
+    <string name="bytes_singular">байт</string>
+    <string name="bytes_paucal">байта</string>
+    <string name="bytes_plural">байтов</string>
+    <string name="enable_cursive_advice">Включить замену «à la курсив»</string>
+    <string name="replace_advice">Заменить \'%1$s\' → %2$s</string>
 </resources>
