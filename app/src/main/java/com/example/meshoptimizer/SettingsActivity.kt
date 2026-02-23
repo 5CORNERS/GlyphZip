@@ -88,7 +88,6 @@ class SettingsActivity : AppCompatActivity() {
 
         addSection(left, getString(R.string.homoglyphs_section_title), "enabled_group1", Replacements.group1, true)
         addSection(left, getString(R.string.cursive_section_title), "enabled_group2", Replacements.group2)
-        right.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 70) })
         addSection(right, getString(R.string.aggressive_section_title), "enabled_group3", Replacements.group3)
 
         cols.addView(left)
