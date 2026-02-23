@@ -12,6 +12,7 @@ import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.view.*
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -20,6 +21,7 @@ import android.content.ClipboardManager
 
 class MainActivity : AppCompatActivity() {
 
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var prefs: SharedPreferences
     private lateinit var inputArea: EditText
     private lateinit var outputArea: TextView
@@ -245,9 +247,14 @@ class MainActivity : AppCompatActivity() {
         })
         copyBtnContainer.addView(copyBtnContent)
         root.addView(copyBtnContainer)
+        
+        inputArea.setText(viewModel.inputText)
 
         inputArea.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { updateUI() }
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.inputText = s.toString()
+                updateUI()
+            }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
