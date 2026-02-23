@@ -302,11 +302,6 @@ class MainActivity : AppCompatActivity() {
 
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#2A2A2A")))
         dialog.show()
-
-        // We need to set the layout params after showing the dialog
-        val displayMetrics = resources.displayMetrics
-        val height = (displayMetrics.heightPixels * 0.85).toInt()
-        dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, height)
     }
 
     override fun onResume() { super.onResume(); updateUI() }

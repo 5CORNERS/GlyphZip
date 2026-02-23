@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GlyphZip</string>
     <string name="menu_optimize">Optimize for Mesh</string>
@@ -25,10 +26,10 @@
     <string name="replacement_format">%1$s → %2$s</string>
 
     <!-- Main Screen -->
-    <string name="from_creators_of">От создателей</string>
+    <string name="from_creators_of">От создателей </string>
     <string name="paste_button">Вставить</string>
     <string name="clear_button">Очистить</string>
-    <string name="input_area_hint">Вставьте или введите текст...</string>
+    <string name="input_area_hint">Введите текст...</string>
     <string name="copy_button">Копировать результат</string>
     <string name="copied_toast">Скопировано</string>
     <string name="bytes_singular">байт</string>
