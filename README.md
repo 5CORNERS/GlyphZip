@@ -28,3 +28,8 @@
   <img src="https://files.le-francais.ru/images/forum/i.ibb.co+hzQzvYG+IMG-20260221-064130.jpg" width="400">
   <img src="https://files.le-francais.ru/images/forum/i.ibb.co+pcLtbrQ+image.png" width="400">
 </p>
+
+## Ссылки
+
+* 📢 **Канал Telegram:** [t.me/GlyphZipApp](https://t.me/GlyphZipApp)
+* 📥 **Страничка приложения на сайте:** [le-francais.ru/apps/glyphzip/](https://www.le-francais.ru/apps/glyphzip/)
