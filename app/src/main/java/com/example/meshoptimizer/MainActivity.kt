@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-        prefs = getSharedPreferences("GlyphZipPrefs", Context.MODE_PRIVATE)
+        prefs = getSharedPreferences("GlyphZipPrefs", MODE_PRIVATE)
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnRow.addView(createModernBtn(getString(R.string.paste_button), R.drawable.ic_content_paste_24, 1.3f, "#128293", "#444444") {
-            val cb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val cb = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             inputArea.setText(cb.primaryClip?.getItemAt(0)?.text ?: "")
             updateUI()
         })
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
 
             layoutParams = LinearLayout.LayoutParams(-1, 120).apply { topMargin = 20 }
             setOnClickListener {
-                val cb = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val cb = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                 cb.setPrimaryClip(ClipData.newPlainText("zip", outputArea.text))
                 Toast.makeText(this@MainActivity, getString(R.string.copied_toast), Toast.LENGTH_SHORT).show()
             }
@@ -313,7 +313,7 @@ class MainActivity : AppCompatActivity() {
         val g2 = prefs.getStringSet("enabled_group2", emptySet()) ?: emptySet()
         val g3 = prefs.getStringSet("enabled_group3", emptySet()) ?: emptySet()
 
-        val allReplacements = Replacements.group1 + Replacements.group2 + Replacements.group3
+        Replacements.group1 + Replacements.group2 + Replacements.group3
 
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()

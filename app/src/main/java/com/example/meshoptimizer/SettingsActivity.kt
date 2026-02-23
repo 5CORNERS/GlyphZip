@@ -24,7 +24,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-        prefs = getSharedPreferences("GlyphZipPrefs", Context.MODE_PRIVATE)
+        prefs = getSharedPreferences("GlyphZipPrefs", MODE_PRIVATE)
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -151,7 +151,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val headCheckBox = androidx.appcompat.widget.AppCompatCheckBox(this@SettingsActivity).apply {
-            buttonTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#67EA94"))
+            buttonTintList = ColorStateList.valueOf(Color.parseColor("#67EA94"))
             updateCheckboxState(this, map.keys, current)
         }
         checkboxRegistry[prefKey] = headCheckBox
