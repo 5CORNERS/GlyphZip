@@ -33,13 +33,7 @@ class MainActivity : AppCompatActivity() {
         "а" to "a", "е" to "e", "ё" to "e", "о" to "o", "р" to "p", "с" to "c", "у" to "y", "х" to "x"
     )
     private val group2 = mapOf("т" to "m", "п" to "n", "и" to "u", "д" to "g")
-
-    // Strict order: б, З, У, к, г, ч
-    private val group3 = linkedMapOf(
-        "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b"
-    )
-
-    private val allReplacements = group1 + group2 + group3
+    private val group3 = linkedMapOf( "б" to "6", "З" to "3", "У" to "Y", "Д" to "D", "к" to "k", "г" to "r", "т" to "t", "ш" to "w", "Ш" to "W", "ч" to "4", "ь" to "b")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -275,7 +269,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showWelcomeDialog() {
-        val version = "1.0"
+        val version = "1.1"
         val doNotShowAgainPref = "show_welcome_dialog_$version"
 
         if (prefs.getBoolean(doNotShowAgainPref, false)) {
@@ -328,7 +322,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI() {
         val input = inputArea.text.toString()
         val limit = prefs.getInt("byte_limit", 200)
-        val enabled = prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys
+        val g1 = prefs.getStringSet("enabled_group1", group1.keys) ?: group1.keys
+        val g2 = prefs.getStringSet("enabled_group2", emptySet()) ?: emptySet()
+        val g3 = prefs.getStringSet("enabled_group3", emptySet()) ?: emptySet()
 
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()
@@ -336,7 +332,12 @@ class MainActivity : AppCompatActivity() {
 
         for (char in input) {
             val s = char.toString()
-            val repl = if (enabled.contains(s)) allReplacements[s] else null
+            val repl = when {
+                g2.contains(s) -> group2[s]
+                g3.contains(s) -> group3[s]
+                g1.contains(s) -> group1[s]
+                else -> null
+            }
             val target = repl ?: s
             val bSize = target.toByteArray(Charset.forName("UTF-8")).size
             val start = spannable.length
@@ -357,17 +358,18 @@ class MainActivity : AppCompatActivity() {
 
         adviceContainer.removeAllViews()
         if (outBytes > limit) {
-            val g2Missing = group2.keys.filter { !enabled.contains(it) }
+            val enabledChars = g1 + g2 + g3
+            val g2Missing = group2.keys.filter { !enabledChars.contains(it) }
             if (g2Missing.isNotEmpty()) {
                 val gain = g2Missing.sumOf { char -> input.count { it.toString() == char } }
-                if (gain > 0) createAdviceBtn("Включить замену «à la курсив»", gain, group2.keys)
+                if (gain > 0) createAdviceBtn("Включить замену «à la курсив»", gain, "enabled_group2", g2Missing.toSet())
             } else {
-                // Order: б, З, У, к, г, ч thanks to LinkedMap
+                // Order: б, З, У, к, г, ч, т, ш, Ш, ь thanks to LinkedMap
                 for (char in group3.keys) {
-                    if (!enabled.contains(char)) {
+                    if (!enabledChars.contains(char)) {
                         val gain = input.count { it.toString() == char }
                         if (gain > 0) {
-                            createAdviceBtn("Заменить '${char.lowercase()}' → ${group3[char]}", gain, setOf(char))
+                            createAdviceBtn("Заменить '${char.lowercase()}' → ${group3[char]}", gain, "enabled_group3", setOf(char))
                             break
                         }
                     }
@@ -376,7 +378,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createAdviceBtn(label: String, gain: Int, chars: Set<String>) {
+    private fun createAdviceBtn(label: String, gain: Int, prefKey: String, chars: Set<String>) {
         adviceContainer.addView(Button(this).apply {
             text = "$label (+ $gain ${getPluralBytes(gain)})"
             isAllCaps = false
@@ -389,12 +391,30 @@ class MainActivity : AppCompatActivity() {
             }
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10; bottomMargin = 10 }
             setOnClickListener {
-                val current = (prefs.getStringSet("enabled_chars", group1.keys) ?: group1.keys).toMutableSet()
+                val editor = prefs.edit()
+                val current = (prefs.getStringSet(prefKey, emptySet()) ?: emptySet()).toMutableSet()
                 current.addAll(chars)
-                prefs.edit().putStringSet("enabled_chars", current).apply()
+                handleExclusion(prefKey, editor, current)
+                editor.putStringSet(prefKey, current).apply()
                 updateUI()
             }
         })
+    }
+    private fun handleExclusion(currentGroupKey: String, editor: SharedPreferences.Editor, currentGroupSet: MutableSet<String>) {
+        val isCursiveT = currentGroupKey == "enabled_group2" && currentGroupSet.contains("т")
+        val isAggressiveT = currentGroupKey == "enabled_group3" && currentGroupSet.contains("т")
+
+        if (isCursiveT) {
+            val aggressiveSet = (prefs.getStringSet("enabled_group3", emptySet()) ?: emptySet()).toMutableSet()
+            if (aggressiveSet.remove("т")) {
+                editor.putStringSet("enabled_group3", aggressiveSet)
+            }
+        } else if (isAggressiveT) {
+            val cursiveSet = (prefs.getStringSet("enabled_group2", emptySet()) ?: emptySet()).toMutableSet()
+            if (cursiveSet.remove("т")) {
+                editor.putStringSet("enabled_group2", cursiveSet)
+            }
+        }
     }
 
     private fun getPluralBytes(number: Int): String {
