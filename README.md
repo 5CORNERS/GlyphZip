@@ -26,7 +26,7 @@
 
 <p align="center">
   <img src="https://files.le-francais.ru/images/apps/glyphzip/screen1.webp" width="400">
-  <img src="https://files.le-francais.ru/images/apps/glyphzip/screen5.png" width="400">
+  <img src="https://files.le-francais.ru/images/apps/glyphzip/screen7.webp" width="400">
 </p>
 
 ## Ссылки
