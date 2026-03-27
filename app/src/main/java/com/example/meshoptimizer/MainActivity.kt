@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showWelcomeDialog() {
-        val version = "1.1"
+        val version = "1.2.0"
         val doNotShowAgainPref = "show_welcome_dialog_$version"
 
         if (prefs.getBoolean(doNotShowAgainPref, false)) {

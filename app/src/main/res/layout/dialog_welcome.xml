@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="24dp"
     android:layout_marginRight="24dp"
     android:background="#2A2A2A"
-    android:orientation="vertical">
+    android:scrollbars="vertical">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/dialog_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
 
-    </ScrollView>
-
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingTop="4dp"
-        android:paddingRight="12dp"
-        android:paddingBottom="4dp">
-
-        <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/dialog_checkbox"
-            android:layout_width="0dp"
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Больше не показывать"
-            android:textColor="@android:color/darker_gray" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingTop="4dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="12dp">
 
-        <Button
-            android:id="@+id/dialog_close_button"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Закрыть"
-            android:textColor="#67EA94" />
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/dialog_checkbox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Больше не показывать"
+                android:textColor="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/dialog_close_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Закрыть"
+                android:textColor="#67EA94" />
+        </LinearLayout>
+
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

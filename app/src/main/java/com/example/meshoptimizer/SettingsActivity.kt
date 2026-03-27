@@ -101,7 +101,7 @@ class SettingsActivity : AppCompatActivity() {
             val spannable = SpannableString(fullText)
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://le-francais.ru/apps/GlyphZip")))
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://le-francais.ru/apps/glyphzip/")))
                 }
             }
             val startIndex = fullText.indexOf(linkText)
