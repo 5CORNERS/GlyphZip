@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var inputCounter: TextView
     private lateinit var outputCounter: TextView
     private lateinit var adviceContainer: LinearLayout
+    private lateinit var copyBtnContainer: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity() {
         root.addView(adviceContainer)
 
         // --- Copy ---
-        val copyBtnContainer = FrameLayout(this).apply {
+        copyBtnContainer = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#67EA94"))
                 cornerRadius = 25f
@@ -245,7 +246,7 @@ class MainActivity : AppCompatActivity() {
             setTextColor(Color.BLACK)
             setPadding(20, 0, 0, 0)
         })
-        copyBtnContainer.addView(copyBtnContent)
+        (copyBtnContainer as FrameLayout).addView(copyBtnContent)
         root.addView(copyBtnContainer)
         
         inputArea.setText(viewModel.inputText)
@@ -320,14 +321,15 @@ class MainActivity : AppCompatActivity() {
         val g2 = prefs.getStringSet("enabled_group2", emptySet()) ?: emptySet()
         val g3 = prefs.getStringSet("enabled_group3", emptySet()) ?: emptySet()
 
-        Replacements.group1 + Replacements.group2 + Replacements.group3
-
         val inputBytes = input.toByteArray(Charset.forName("UTF-8")).size
         val spannable = SpannableStringBuilder()
         var outBytes = 0
+        var homoglyphOnlyBytes = 0
 
         for (char in input) {
             val s = char.toString()
+            
+            // Current actual replacements
             val repl = when {
                 g2.contains(s) -> Replacements.group2[s]
                 g3.contains(s) -> Replacements.group3[s]
@@ -345,6 +347,10 @@ class MainActivity : AppCompatActivity() {
             } else if (repl != null) {
                 spannable.setSpan(ForegroundColorSpan(Color.parseColor("#81C784")), start, spannable.length, 33)
             }
+            
+            // Calculation for "homoglyph only" scenario
+            val hRepl = if (g1.contains(s)) Replacements.group1[s] else null
+            homoglyphOnlyBytes += (hRepl ?: s).toByteArray(Charset.forName("UTF-8")).size
         }
 
         outputArea.text = spannable
@@ -353,6 +359,37 @@ class MainActivity : AppCompatActivity() {
         outputCounter.setTextColor(if (outBytes > limit) Color.RED else Color.GRAY)
 
         adviceContainer.removeAllViews()
+        
+        // --- Reset Button Logic ---
+        val rulesExpanded = g2.isNotEmpty() || g3.isNotEmpty()
+        if (rulesExpanded && homoglyphOnlyBytes <= limit) {
+            adviceContainer.addView(TextView(this).apply {
+                text = getString(R.string.reset_to_homoglyphs)
+                isAllCaps = false
+                textSize = 16f
+                gravity = Gravity.CENTER
+                includeFontPadding = false
+                setPadding(0, 0, 0, 0)
+                setTextColor(Color.parseColor("#67EA94"))
+                isClickable = true
+                isFocusable = true
+                background = GradientDrawable().apply {
+                    setColor(Color.TRANSPARENT)
+                    setStroke(3, Color.parseColor("#67EA94"))
+                    cornerRadius = 20f
+                }
+                layoutParams = LinearLayout.LayoutParams(-1, 120).apply { topMargin = 10; bottomMargin = 10 }
+                setOnClickListener {
+                    prefs.edit()
+                        .putStringSet("enabled_group2", emptySet())
+                        .putStringSet("enabled_group3", emptySet())
+                        .apply()
+                    updateUI()
+                }
+            })
+        }
+
+        // --- Original Advice Logic ---
         if (outBytes > limit) {
             val enabledChars = g1 + g2 + g3
             val g2Missing = Replacements.group2.keys.filter { !enabledChars.contains(it) }
@@ -360,7 +397,6 @@ class MainActivity : AppCompatActivity() {
                 val gain = g2Missing.sumOf { char -> input.count { it.toString() == char } }
                 if (gain > 0) createAdviceBtn(getString(R.string.enable_cursive_advice), gain, "enabled_group2", g2Missing.toSet())
             } else {
-                // Order: б, З, У, к, г, ч, т, ш, Ш, ь thanks to LinkedMap
                 for (char in Replacements.group3.keys) {
                     if (!enabledChars.contains(char)) {
                         val gain = input.count { it.toString() == char }
@@ -372,20 +408,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        
+        // --- Copy Button State ---
+        copyBtnContainer.isEnabled = input.isNotEmpty()
+        copyBtnContainer.alpha = if (input.isNotEmpty()) 1.0f else 0.5f
     }
 
     private fun createAdviceBtn(label: String, gain: Int, prefKey: String, chars: Set<String>) {
-        adviceContainer.addView(Button(this).apply {
+        adviceContainer.addView(TextView(this).apply {
             text = "$label (+ $gain ${getPluralBytes(gain)})"
             isAllCaps = false
             textSize = 16f
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+            setPadding(0, 0, 0, 0)
             setTextColor(Color.parseColor("#FF8A80"))
+            isClickable = true
+            isFocusable = true
             background = GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
                 setStroke(3, Color.parseColor("#FF8A80"))
                 cornerRadius = 20f
             }
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10; bottomMargin = 10 }
+            layoutParams = LinearLayout.LayoutParams(-1, 120).apply { topMargin = 10; bottomMargin = 10 }
             setOnClickListener {
                 val editor = prefs.edit()
                 val current = (prefs.getStringSet(prefKey, emptySet()) ?: emptySet()).toMutableSet()

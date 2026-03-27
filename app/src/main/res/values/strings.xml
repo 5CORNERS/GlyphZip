@@ -37,4 +37,5 @@
     <string name="bytes_plural">байтов</string>
     <string name="enable_cursive_advice">Включить замену «à la курсив»</string>
     <string name="replace_advice">Заменить \'%1$s\' → %2$s</string>
+    <string name="reset_to_homoglyphs">Сбросить до полных омоглифов</string>
 </resources>
